@@ -39,3 +39,20 @@ jobs:
       - name: Trigger deployment
         if: ${{ github.event_name == 'push' }}
         run: curl -X POST "https://api.render.com/76deploy/srv-${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_API_KEY }}"
+  tag_release:
+    needs: [simple_deployment_pipeline]
+    runs-on: ubuntu-20.04
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Bump version and push tag
+        uses: anothrNick/github-tag-action@1.64.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # Configuración para hacer bump de la versión con patch (incrementar el último número)
+          default_bump: patch
+          tag_prefix: "v" # Prefijo de las etiquetas (opcional)
+          dry_run: false # Cambia a true si deseas probar el flujo sin crear la etiqueta real
