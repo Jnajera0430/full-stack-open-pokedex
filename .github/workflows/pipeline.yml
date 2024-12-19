@@ -36,6 +36,8 @@ jobs:
         continue-on-error: true
       - name: e2e tests
         run: npm run test:e2e
+      - name: Debug GitHub context
+        run: "echo Event Name: ${{ github.event_name }} | Ref: ${{ github.ref }}"
       - name: Trigger deployment
         if: ${{ github.event_name == 'push' }}
         run: curl -X POST "https://api.render.com/76deploy/srv-${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_API_KEY }}"
