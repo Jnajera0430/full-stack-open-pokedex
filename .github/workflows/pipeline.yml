@@ -1,6 +1,6 @@
+---
 name: Deployment pipeline
-
-on:
+'on':
   push:
     branches:
       - main
@@ -8,13 +8,29 @@ on:
     branches: [main]
     types: [opened, synchronize]
 jobs:
+  a_test_job:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: github context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+      - name: commits
+        env:
+          COMMITS: ${{ toJson(github.event.commits) }}
+        run: echo "$COMMITS"
+      - name: commit messages
+        env:
+          COMMIT_MESSAGES: ${{ toJson(github.event.commits.*.message) }}
+        run: echo "$COMMIT_MESSAGES"
   simple_deployment_pipeline:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: '20'
       - name: Cache Playwright Browsers
         uses: actions/cache@v3
         with:
@@ -46,13 +62,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Bump version and push tag
         uses: anothrNick/github-tag-action@1.64.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          # Configuración para hacer bump de la versión con patch (incrementar el último número)
-          default_bump: patch
-          tag_prefix: "v" # Prefijo de las etiquetas (opcional)
-          dry_run: false # Cambia a true si deseas probar el flujo sin crear la etiqueta real
+                    # Configuración para hacer bump de la versión con patch (incrementar el último número)
+default_bump: patch
+          tag_prefix: v
+          dry_run: false
