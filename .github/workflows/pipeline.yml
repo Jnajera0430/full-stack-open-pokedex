@@ -9,20 +9,17 @@ on:
     types: [opened, synchronize]
 jobs:
   simple_deployment_pipeline:
+    name: Build and Deploy Pipeline ✅
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-      - name: Cache Playwright Browsers
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-browsers
-          restore-keys: ${{ runner.os }}-playwright-browsers
-      - name: Install Playwright browsers
-        run: npx playwright install && sudo npx playwright install-deps
+      - name: Determine if deployment should be skipped
+        id: check_skip
+        run: |
+          SKIP_DEPLOY=$(echo "${{ toJson(github.event.commits.message) }}" | grep -q '#skip' && echo true || echo false)
+          echo "SKIP_DEPLOY=$SKIP_DEPLOY" >> $GITHUB_ENV
+          echo "::set-output name=should_skip::$SKIP_DEPLOY"
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
       - name: Install dependencies
         run: npm install
       - name: Check style
@@ -37,12 +34,13 @@ jobs:
       - name: e2e tests
         run: npm run test:e2e
       - name: Trigger deployment
-        if: github.event_name == 'push'
+        if: ${{ steps.check_skip.outputs.should_skip == 'false' && github.event_name == 'push' }}
         run: curl -X POST "https://api.render.com/76deploy/srv-${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_API_KEY }}"
   tag_release:
+    name: Tag Release 🏷️
     needs: [simple_deployment_pipeline]
     runs-on: ubuntu-20.04
-    if: github.ref == 'refs/heads/main'
+    if: ${{ needs.simple_deployment_pipeline.outputs.should_skip == 'false' && github.ref == 'refs/heads/main' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
