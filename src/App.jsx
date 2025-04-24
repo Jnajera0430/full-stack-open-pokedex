@@ -39,7 +39,7 @@ const App = () => {
     previous = pokemonList.find(({ id }) => id === pokemonId - 1)
     next = pokemonList.find(({ id }) => id === pokemonId + 1)
   }
-  const foo = 
+
   return (
     <Routes>
       <Route
