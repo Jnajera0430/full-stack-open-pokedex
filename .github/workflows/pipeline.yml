@@ -48,7 +48,7 @@ jobs:
         with:
           args: |
             ✅ Deployment successful! A new version of the app is live.
-            [Commit](${{ github.event.head_commit.url }}) by ${{ github.actor }}
+            [Commit](https://github.com/${{ github.repository }}/commit/${{ github.sha }}) by ${{ github.actor }}
       - name: Notify Discord on Failure
         if: failure()
         uses: Ilshidur/action-discord@master
@@ -57,7 +57,7 @@ jobs:
         with:
           args: |
             ❌ Build failed!
-            Commit: [${{ github.event.head_commit.message }}](${{ github.event.head_commit.url }})
+            Commit: [${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})
             Author: ${{ github.actor }}
       
   tag_release:
