@@ -40,6 +40,26 @@ jobs:
       - name: Trigger deployment
         if: ${{ steps.check_skip.outputs.should_skip == 'false' && github.event_name == 'push' }}
         run: curl -X POST "https://api.render.com/76deploy/srv-${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_API_KEY }}"
+      - name: Notify Discord on Success
+        if: success()
+        uses: Ilshidur/action-discord@master
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        with:
+          args: |
+            ✅ Deployment successful! A new version of the app is live.
+            [Commit](${{ github.event.head_commit.url }}) by ${{ github.actor }}
+      - name: Notify Discord on Failure
+        if: failure()
+        uses: Ilshidur/action-discord@master
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        with:
+          args: |
+            ❌ Build failed!
+            Commit: [${{ github.event.head_commit.message }}](${{ github.event.head_commit.url }})
+            Author: ${{ github.actor }}
+      
   tag_release:
     name: Tag Release 🏷️
     needs: [simple_deployment_pipeline]
