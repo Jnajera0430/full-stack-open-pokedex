@@ -10,7 +10,7 @@ on:
 jobs:
   simple_deployment_pipeline:
     name: Build and Deploy Pipeline ✅
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Determine if deployment should be skipped
         id: check_skip
@@ -39,7 +39,7 @@ jobs:
   tag_release:
     name: Tag Release 🏷️
     needs: [simple_deployment_pipeline]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     if: ${{ needs.simple_deployment_pipeline.outputs.should_skip == 'false' && github.ref == 'refs/heads/main' }}
     steps:
       - name: Checkout code
