@@ -1,0 +1,20 @@
+name: Health Check Ping
+
+on:
+  schedule:
+    - cron: '0 * * * *' # ⏰ Cada hora
+  workflow_dispatch: # Permite ejecutarlo manualmente también
+
+jobs:
+  health_check:
+    name: Health Check 🩺
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Check deployed app health
+        uses: Jtalk/url-health-check-action@v4
+        with:
+          url: https://full-stack-open-pokedex-o0w1.onrender.com # <-- Cambia esto por tu URL
+          max-attempts: 3
+          retry-delay: 10s
+          follow-redirect: true
